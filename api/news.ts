@@ -182,6 +182,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     allItems.sort((a, b) => new Date(b.pubDate!).getTime() - new Date(a.pubDate!).getTime());
 
+    // Prevent Vercel CDN from caching — always fetch fresh RSS
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+    res.setHeader("Pragma", "no-cache");
     return res.status(200).json(allItems);
   } catch (error) {
     console.error("Error fetching RSS:", error);

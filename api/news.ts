@@ -15,12 +15,17 @@ const parser = new Parser({
 
 const decodeHtmlEntities = (text: string): string => {
   return text
+    // Standard: &#244; or &#x6f;
     .replace(/&#(\d+);/g, (_: string, dec: string) => String.fromCharCode(parseInt(dec)))
+    .replace(/&#x([0-9a-fA-F]+);/g, (_: string, hex: string) => String.fromCharCode(parseInt(hex, 16)))
+    // VnEconomy broken format: #244; (missing leading &)
+    .replace(/#(\d{2,4});/g, (_: string, dec: string) => String.fromCharCode(parseInt(dec)))
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"')
-    .replace(/&nbsp;/g, " ");
+    .replace(/&nbsp;/g, " ")
+    .replace(/&apos;/g, "'");
 };
 
 const extractImageFromHtml = (html: string) => {

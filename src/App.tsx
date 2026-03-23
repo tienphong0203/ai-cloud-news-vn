@@ -370,7 +370,7 @@ export default function App() {
                       competitorRadar.map((comp) => (
                         <a 
                           key={comp.id} 
-                          href={comp.link && comp.link !== "#" ? comp.link : "https://greennode.ai/"} 
+                          href={comp.link && comp.link !== "#" ? comp.link : "#"} 
                           target="_blank" 
                           rel="noopener noreferrer"
                           className="border-b border-red-900/30 pb-3 last:border-0 last:pb-0 block group/comp cursor-pointer"
@@ -390,7 +390,7 @@ export default function App() {
                   </div>
                   
                   <a 
-                    href="https://greennode.ai/" 
+                    href="#" onClick={(e) => e.preventDefault()} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="w-full mt-5 py-2 text-sm text-red-400 hover:text-red-300 bg-red-900/20 hover:bg-red-900/40 rounded transition-colors flex justify-center items-center gap-1 cursor-pointer"

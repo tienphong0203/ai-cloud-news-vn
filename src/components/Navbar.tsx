@@ -28,7 +28,7 @@ export default function Navbar({
               <span className="text-black font-black text-xl">G</span>
             </div>
             <span className="text-xl font-bold tracking-tighter uppercase hidden sm:block">
-              Gen<span className="text-gn-green">News</span>
+              GreenNode <span className="text-gn-green">Radar</span>
             </span>
           </div>
           

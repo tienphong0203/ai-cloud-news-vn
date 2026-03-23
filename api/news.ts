@@ -12,6 +12,17 @@ const parser = new Parser({
   },
 });
 
+
+const decodeHtmlEntities = (text: string): string => {
+  return text
+    .replace(/&#(\d+);/g, (_: string, dec: string) => String.fromCharCode(parseInt(dec)))
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&nbsp;/g, " ");
+};
+
 const extractImageFromHtml = (html: string) => {
   const imgRegex = /<img[^>]+src="([^">]+)"/i;
   const match = html.match(imgRegex);
@@ -77,6 +88,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     ];
 
     const negativeKeywords = [
+      // Conflict / crime
       /\bCHIẾN SỰ\b/i,
       /\bXUNG ĐỘT\b/i,
       /\bWAR\b/i,
@@ -87,10 +99,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       /\bACCIDENT\b/i,
       /\bHÌNH SỰ\b/i,
       /\bCHÁY NỔ\b/i,
+      // Entertainment / sports
       /\bTHỂ THAO\b/i,
       /\bBÓNG ĐÁ\b/i,
       /\bSHOWBIZ\b/i,
       /\bGIẢI TRÍ\b/i,
+      // Weather
+      /\bHUMIDITY\b/i,
+      /\bWEATHER\b/i,
+      /\bTHỜI TIẾT\b/i,
+      /\bRAINFALL\b/i,
+      /\bTYPHOON\b/i,
+      /\bBÃO\b/i,
+      // Real estate / finance unrelated
+      /\bPROPERTY MARKET\b/i,
+      /\bREAL ESTATE\b/i,
+      /\bBẤT ĐỘNG SẢN\b/i,
+      /\bMORTGAGE\b/i,
+      /\bINTEREST RATE CUT\b/i,
+      // Shopping / deals
+      /\bBIG SPRING SALE\b/i,
+      /\bBLACK FRIDAY\b/i,
+      /\bPRIME DAY\b/i,
+      /\bBEST DEALS\b/i,
+      /\bMUA SẮM\b/i,
     ];
 
     const now = new Date();
@@ -107,8 +139,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         feedData.items.forEach((item: any) => {
           const pubDate = new Date(item.pubDate || "");
-          const title = item.title || "";
-          const content = item.contentSnippet || item.content || "";
+          const title = decodeHtmlEntities(item.title || "");
+          const content = decodeHtmlEntities(item.contentSnippet || item.content || "");
           const fullContent = item.contentEncoded || item.content || "";
 
           if (pubDate < timeWindow) return;

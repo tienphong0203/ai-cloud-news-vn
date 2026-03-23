@@ -57,7 +57,7 @@ export default function App() {
   const getNewsData = async () => {
     setLoading(true);
     try {
-      const response = await window.fetch("/api/news", { cache: "no-store" });
+      const response = await window.fetch(`/api/news?t=${Date.now()}`, { cache: "no-store" });
       const data: NewsItem[] = await response.json();
       
       setNews(data);

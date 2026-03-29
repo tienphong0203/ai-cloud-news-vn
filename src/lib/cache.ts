@@ -1,28 +1,29 @@
-import { kv } from '@vercel/kv';
 import type { Article } from './news';
 
-const CACHE_KEY = 'vn_tech_news_articles';
-const LAST_UPDATED_KEY = 'vn_tech_news_updated_at';
-const TTL = 60 * 60 * 2; // 2 hours
+// In-memory cache — works on Vercel serverless (shared within same instance)
+let cachedArticles: Article[] | null = null;
+let cachedAt: string | null = null;
+const TTL_MS = 2 * 60 * 60 * 1000; // 2 hours
 
 export async function getCachedArticles(): Promise<Article[] | null> {
-  try {
-    const data = await kv.get<Article[]>(CACHE_KEY);
-    return data ?? null;
-  } catch {
+  if (!cachedArticles || !cachedAt) return null;
+
+  const age = Date.now() - new Date(cachedAt).getTime();
+  if (age > TTL_MS) {
+    // Cache expired
+    cachedArticles = null;
+    cachedAt = null;
     return null;
   }
+
+  return cachedArticles;
 }
 
 export async function setCachedArticles(articles: Article[]): Promise<void> {
-  await kv.set(CACHE_KEY, articles, { ex: TTL });
-  await kv.set(LAST_UPDATED_KEY, new Date().toISOString(), { ex: TTL });
+  cachedArticles = articles;
+  cachedAt = new Date().toISOString();
 }
 
 export async function getLastUpdated(): Promise<string | null> {
-  try {
-    return await kv.get<string>(LAST_UPDATED_KEY);
-  } catch {
-    return null;
-  }
+  return cachedAt;
 }

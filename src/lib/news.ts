@@ -23,7 +23,7 @@ const RSS_SOURCES = [
     category: 'Cloud' as const,
   },
   {
-    url: 'https://news.google.com/rss/search?q=startup+công+nghệ+Việt+Nam+2024&hl=vi&gl=VN&ceid=VN:vi',
+    url: 'https://news.google.com/rss/search?q=startup+công+nghệ+Việt+Nam&hl=vi&gl=VN&ceid=VN:vi',
     category: 'Startup' as const,
   },
   {
@@ -62,6 +62,17 @@ function extractSourceName(item: Record<string, string>, fallbackUrl: string): s
   return knownSources[domain] || domain;
 }
 
+function decodeHtmlEntities(str: string): string {
+  return str
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(parseInt(dec, 10)));
+}
+
 function slugify(str: string): string {
   return str.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '').slice(0, 40);
 }
@@ -70,6 +81,21 @@ function slugify(str: string): string {
 function decodeGoogleUrl(url: string): string {
   // Google News wraps actual URLs — return as-is, browser will redirect
   return url;
+}
+
+// Re-classify article based on title keywords (more accurate than RSS source alone)
+function classifyCategory(title: string, fallback: 'AI' | 'Cloud' | 'Startup' | 'General'): 'AI' | 'Cloud' | 'Startup' | 'General' {
+  const lower = title.toLowerCase();
+
+  const aiKeywords = ['ai', 'trí tuệ nhân tạo', 'machine learning', 'chatbot', 'chatgpt', 'deepmind', 'openai', 'llm', 'generative', 'deep learning', 'mô hình ngôn ngữ'];
+  const cloudKeywords = ['cloud', 'đám mây', 'aws', 'azure', 'gcp', 'data center', 'trung tâm dữ liệu', 'hạ tầng số', 'saas', 'iaas', 'paas', 'server', 'máy chủ'];
+  const startupKeywords = ['startup', 'khởi nghiệp', 'gọi vốn', 'đầu tư', 'series a', 'series b', 'vc ', 'venture', 'unicorn', 'fintech', 'edtech'];
+
+  if (aiKeywords.some(kw => lower.includes(kw))) return 'AI';
+  if (cloudKeywords.some(kw => lower.includes(kw))) return 'Cloud';
+  if (startupKeywords.some(kw => lower.includes(kw))) return 'Startup';
+
+  return fallback;
 }
 
 function isWithin24Hours(dateStr: string): boolean {
@@ -129,15 +155,18 @@ export async function fetchAllNews(): Promise<Article[]> {
           const sourceDomain = extractDomain(link);
           const sourceName = extractSourceName(item, link);
 
+          const cleanTitle = decodeHtmlEntities(title.replace(/ - [^-]+$/, '')); // strip source suffix & decode HTML entities
+          const finalCategory = classifyCategory(cleanTitle, category);
+
           allArticles.push({
-            id: `${slugify(title)}-${Date.now()}`,
-            title: title.replace(/ - [^-]+$/, ''), // strip source suffix Google adds
+            id: `${slugify(cleanTitle)}-${Date.now()}`,
+            title: cleanTitle,
             url: decodeGoogleUrl(link),
             source: sourceName,
             sourceDomain,
             summary: cleanDesc || 'Xem bài viết đầy đủ tại nguồn.',
             publishedAt: pubDate,
-            category,
+            category: finalCategory,
             imageUrl: undefined,
           });
         }

@@ -195,7 +195,7 @@ export default function HomePage() {
                     className={`lg:col-span-7 relative group overflow-hidden rounded-xl border hover:border-[#00ff66]/40 transition-colors ${T(dark, 'border-[#2a2d35]', 'border-[#e2e8f0]')}`}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={filtered[0].thumbnail || `https://picsum.photos/seed/${filtered[0].id.slice(-5)}/800/400`}
-                      alt="" className="w-full h-[380px] object-cover opacity-60 group-hover:opacity-80 transition-opacity" referrerPolicy="no-referrer" />
+                      alt="" className={`w-full h-[380px] object-cover transition-opacity ${dark ? 'opacity-60 group-hover:opacity-80' : 'opacity-90 group-hover:opacity-100'}`} referrerPolicy="no-referrer" />
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/90 to-transparent p-6">
                       <span className="inline-block px-3 py-1 mb-3 text-xs font-bold text-black bg-[#00ff66] rounded-full">{filtered[0].tag}</span>
                       <h3 className="text-xl font-bold leading-tight mb-2 group-hover:text-[#00ff66] transition-colors">{filtered[0].title}</h3>
@@ -211,7 +211,7 @@ export default function HomePage() {
                       className={`flex flex-col rounded-xl border overflow-hidden hover:border-[#00ff66]/30 transition-colors p-3 ${T(dark, 'border-[#2a2d35] bg-[#121418]', 'border-[#e2e8f0] bg-white')}`}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={item.thumbnail || `https://picsum.photos/seed/${item.id.slice(-5)}/400/200`}
-                        alt="" className="w-full h-28 object-cover rounded-lg mb-2 opacity-90" referrerPolicy="no-referrer" />
+                        alt="" className={`w-full h-28 object-cover rounded-lg mb-2 ${dark ? 'opacity-90' : 'opacity-100'}`} referrerPolicy="no-referrer" />
                       <span className="text-[10px] font-bold text-[#00ff66] mb-1">{item.tag}</span>
                       <h4 className="text-sm font-semibold line-clamp-2 mb-auto">{item.title}</h4>
                       <span className="text-[11px] text-[#9ca3af] mt-2">{timeAgo(item.pubDate)}</span>
@@ -248,7 +248,7 @@ export default function HomePage() {
 
               {/* Right: Competitor Radar */}
               <div className="lg:col-span-1">
-                <div className="sticky top-20 p-5 rounded-xl border border-red-900/50 bg-red-950/20 relative overflow-hidden">
+                <div className={`sticky top-20 p-5 rounded-xl border relative overflow-hidden ${T(dark, 'border-red-900/50 bg-red-950/20', 'border-red-200 bg-red-50')}`}>
                   <div className="absolute top-0 left-0 w-1 h-full bg-red-500" />
                   <div className="flex items-center gap-2 mb-4">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-pulse">
@@ -265,7 +265,7 @@ export default function HomePage() {
                           <span className="font-bold text-sm group-hover:text-red-400 transition-colors">{a.competitorName}</span>
                           <span className="text-[10px] text-red-400/70 border border-red-900/50 px-2 py-0.5 rounded">{timeAgo(a.pubDate)}</span>
                         </div>
-                        <p className="text-sm text-gray-300 line-clamp-2 group-hover:text-white transition-colors">{a.title}</p>
+                        <p className={`text-sm line-clamp-2 transition-colors ${T(dark, 'text-gray-300 group-hover:text-white', 'text-gray-700 group-hover:text-black')}`}>{a.title}</p>
                         <span className="text-[10px] text-[#9ca3af] mt-1 block">{a.source}</span>
                       </a>
                     )) : (

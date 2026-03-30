@@ -16,6 +16,9 @@ function timeAgo(dateStr: string) {
 
 const REGIONS = ['Tất cả', 'Vietnam', 'China', 'USA', 'Europe'];
 
+// Theme colors: [dark, light]
+const T = (dark: boolean, d: string, l: string) => dark ? d : l;
+
 // ── Component ─────────────────────────────────────────────────────
 export default function HomePage() {
   const [news, setNews] = useState<NewsItem[]>([]);
@@ -24,6 +27,7 @@ export default function HomePage() {
   const [region, setRegion] = useState('Tất cả');
   const [showNotif, setShowNotif] = useState(false);
   const [readIds, setReadIds] = useState<Set<string>>(new Set());
+  const [dark, setDark] = useState(true);
 
   const markAsRead = (id: string) => setReadIds(prev => new Set(prev).add(id));
   const markAllRead = () => setReadIds(new Set(competitors.map(a => a.id)));
@@ -64,9 +68,9 @@ export default function HomePage() {
 
   // ── RENDER ────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-[#0a0a0c] text-white">
+    <div className={`min-h-screen transition-colors duration-300 ${dark ? 'bg-[#0a0a0c] text-white' : 'bg-[#f8fafc] text-[#0f172a]'}`}>
       {/* ═══ HEADER ═══ */}
-      <header className="sticky top-0 z-50 bg-[#0a0a0c]/90 backdrop-blur-md border-b border-[#2a2d35]">
+      <header className={`sticky top-0 z-50 backdrop-blur-md border-b transition-colors duration-300 ${dark ? 'bg-[#0a0a0c]/90 border-[#2a2d35]' : 'bg-white/90 border-[#e2e8f0]'}`}>
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-[#00ff66] flex items-center justify-center font-bold text-black text-sm">G</div>
@@ -90,7 +94,7 @@ export default function HomePage() {
             {/* Notification bell */}
             <div className="relative">
               <button onClick={() => setShowNotif(!showNotif)}
-                className="relative p-2 text-[#9ca3af] hover:text-[#00ff66] transition-colors rounded-lg border border-[#2a2d35] hover:border-[#00ff66]/30"
+                className={`relative p-2 transition-colors rounded-lg border hover:text-[#00ff66] hover:border-[#00ff66]/30 ${T(dark, 'text-[#9ca3af] border-[#2a2d35]', 'text-[#64748b] border-[#e2e8f0]')}`}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
@@ -103,7 +107,7 @@ export default function HomePage() {
               </button>
 
               {showNotif && (
-                <div className="absolute right-0 top-11 w-80 bg-[#121418] border border-[#2a2d35] rounded-xl shadow-2xl z-50 overflow-hidden">
+                <div className={`absolute right-0 top-11 w-80 rounded-xl shadow-2xl z-50 overflow-hidden border ${T(dark, 'bg-[#121418] border-[#2a2d35]', 'bg-white border-[#e2e8f0]')}`}>
                   <div className="p-3 border-b border-[#2a2d35] flex justify-between items-center">
                     <span className="text-xs font-bold uppercase tracking-wider">Thông báo đối thủ</span>
                     <div className="flex items-center gap-2">
@@ -137,9 +141,23 @@ export default function HomePage() {
               )}
             </div>
 
+            {/* Theme toggle */}
+            <button onClick={() => setDark(!dark)}
+              className={`p-2 rounded-lg border transition-colors ${dark ? 'text-[#9ca3af] border-[#2a2d35] hover:text-yellow-400 hover:border-yellow-400/30' : 'text-[#64748b] border-[#e2e8f0] hover:text-indigo-500 hover:border-indigo-500/30'}`}>
+              {dark ? (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                </svg>
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+              )}
+            </button>
+
             {/* Refresh */}
             <button onClick={handleRefresh} disabled={refreshing}
-              className="text-xs text-[#9ca3af] hover:text-[#00ff66] px-3 py-1.5 rounded-lg border border-[#2a2d35] hover:border-[#00ff66]/30 disabled:opacity-40 transition-colors">
+              className={`text-xs hover:text-[#00ff66] px-3 py-1.5 rounded-lg border hover:border-[#00ff66]/30 disabled:opacity-40 transition-colors ${T(dark, 'text-[#9ca3af] border-[#2a2d35]', 'text-[#64748b] border-[#e2e8f0]')}`}>
               {refreshing ? 'Đang tải...' : 'Refresh'}
             </button>
           </div>
@@ -174,7 +192,7 @@ export default function HomePage() {
                 {/* Hero */}
                 {filtered[0] && (
                   <a href={filtered[0].link} target="_blank" rel="noopener noreferrer"
-                    className="lg:col-span-7 relative group overflow-hidden rounded-xl border border-[#2a2d35] hover:border-[#00ff66]/40 transition-colors">
+                    className={`lg:col-span-7 relative group overflow-hidden rounded-xl border hover:border-[#00ff66]/40 transition-colors ${T(dark, 'border-[#2a2d35]', 'border-[#e2e8f0]')}`}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={filtered[0].thumbnail || `https://picsum.photos/seed/${filtered[0].id.slice(-5)}/800/400`}
                       alt="" className="w-full h-[380px] object-cover opacity-60 group-hover:opacity-80 transition-opacity" referrerPolicy="no-referrer" />
@@ -190,7 +208,7 @@ export default function HomePage() {
                 <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {filtered.slice(1, 5).map(item => (
                     <a key={item.id} href={item.link} target="_blank" rel="noopener noreferrer"
-                      className="flex flex-col rounded-xl border border-[#2a2d35] bg-[#121418] overflow-hidden hover:border-[#00ff66]/30 transition-colors p-3">
+                      className={`flex flex-col rounded-xl border overflow-hidden hover:border-[#00ff66]/30 transition-colors p-3 ${T(dark, 'border-[#2a2d35] bg-[#121418]', 'border-[#e2e8f0] bg-white')}`}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={item.thumbnail || `https://picsum.photos/seed/${item.id.slice(-5)}/400/200`}
                         alt="" className="w-full h-28 object-cover rounded-lg mb-2 opacity-90" referrerPolicy="no-referrer" />
@@ -211,7 +229,7 @@ export default function HomePage() {
                 <div className="flex flex-col gap-3">
                   {filtered.slice(5).map(item => (
                     <a key={item.id} href={item.link} target="_blank" rel="noopener noreferrer"
-                      className="p-4 rounded-xl border border-[#2a2d35] bg-[#121418] hover:bg-[#2a2d35]/20 transition-colors group">
+                      className={`p-4 rounded-xl border transition-colors group ${T(dark, 'border-[#2a2d35] bg-[#121418] hover:bg-[#2a2d35]/20', 'border-[#e2e8f0] bg-white hover:bg-[#f1f5f9]')}`}>
                       <div className="flex justify-between items-start mb-1.5">
                         <span className="text-[11px] font-bold text-blue-400 uppercase">{item.source} &middot; {item.tag}</span>
                         <span className="text-[10px] text-[#9ca3af] shrink-0">{timeAgo(item.pubDate)}</span>
@@ -264,7 +282,7 @@ export default function HomePage() {
       </main>
 
       {/* ═══ FOOTER ═══ */}
-      <footer className="border-t border-[#2a2d35] mt-12 py-6">
+      <footer className={`border-t mt-12 py-6 ${T(dark, 'border-[#2a2d35]', 'border-[#e2e8f0]')}`}>
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-[11px] text-[#9ca3af]">GreenNode Radar &middot; Tổng hợp tự động từ 18 nguồn RSS</p>
           <p className="text-[11px] text-[#9ca3af]">Cập nhật hàng ngày &middot; Nguồn: báo chí Việt Nam &amp; quốc tế</p>

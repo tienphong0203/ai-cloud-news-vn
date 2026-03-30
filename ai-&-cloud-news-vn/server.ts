@@ -82,6 +82,24 @@ async function startServer() {
         /\bSEMICONDUCTOR\b/i
       ];
 
+      // Competitor detection
+      const competitors: Record<string, RegExp> = {
+        'FPT': /\bFPT\b/i,
+        'VIETTEL': /\bVIETTEL\b/i,
+        'CMC': /\bCMC\b/i,
+        'VNPT': /\bVNPT\b/i,
+        'VNG': /\bVNG\b/i,
+        'MOBIFONE': /\bMOBIFONE\b/i,
+        'MISA': /\bMISA\b/i,
+      };
+
+      const detectCompetitor = (text: string): string | null => {
+        for (const [name, regex] of Object.entries(competitors)) {
+          if (regex.test(text)) return name;
+        }
+        return null;
+      };
+
       const negativeKeywords = [
         /\bCHIẾN SỰ\b/i,
         /\bXUNG ĐỘT\b/i,
@@ -140,6 +158,8 @@ async function startServer() {
                 thumbnail = extractImageFromHtml(fullContent);
               }
 
+              const competitorName = detectCompetitor(title + " " + content);
+
               allItems.push({
                 id: item.guid || item.link,
                 source: feedInfo.source,
@@ -149,7 +169,9 @@ async function startServer() {
                 pubDate: item.pubDate,
                 content: content,
                 thumbnail: thumbnail,
-                tag: feedInfo.region
+                tag: feedInfo.region,
+                isCompetitor: !!competitorName,
+                competitorName: competitorName,
               });
             }
           });

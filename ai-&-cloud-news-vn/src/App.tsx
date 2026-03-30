@@ -164,15 +164,19 @@ export default function App() {
     );
   }, [news, selectedCategory]);
 
-  // Detect competitors: FPT, Viettel, CMC, Mobifone, Vinaphone, VNPT
+  // Detect competitors: FPT, Viettel, CMC, Mobifone, Vinaphone, VNPT, VNG, MISA
   const competitorRadar = useMemo(() => {
     const competitors: CompetitorAction[] = [];
-    
+
     news.forEach(item => {
-      if (item.isCompetitor && item.competitorName) {
+      // Use Gemini-curated flag first, then fall back to server-side detection
+      const isComp = item.isCompetitor;
+      const compName = item.competitorName;
+
+      if (isComp && compName) {
         competitors.push({
           id: item.id,
-          name: item.competitorName.toUpperCase(),
+          name: compName.toUpperCase(),
           action: item.curatedTitle || item.title,
           time: new Date(item.pubDate).toLocaleTimeString("vi-VN", { hour: '2-digit', minute: '2-digit' }) + " hôm nay",
           link: item.link
@@ -180,25 +184,6 @@ export default function App() {
       }
     });
 
-    // If no real competitor news, show mock data as requested
-    if (competitors.length === 0) {
-      return [
-        {
-          id: "mock-1",
-          name: "VIETTEL",
-          action: "Viettel công bố chiến lược phát triển hạ tầng Data Center xanh tại Việt Nam.",
-          time: "08:30 hôm nay",
-          link: "#"
-        },
-        {
-          id: "mock-2",
-          name: "FPT",
-          action: "FPT Software ký kết hợp tác chiến lược về AI với đối tác Nhật Bản.",
-          time: "10:15 hôm nay",
-          link: "#"
-        }
-      ];
-    }
     return competitors.slice(0, 5);
   }, [news]);
 

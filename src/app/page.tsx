@@ -107,14 +107,14 @@ export default function HomePage() {
               </button>
 
               {showNotif && (
-                <div className={`absolute right-0 top-11 w-80 rounded-xl shadow-2xl z-50 overflow-hidden border ${T(dark, 'bg-[#121418] border-[#2a2d35]', 'bg-white border-[#e2e8f0]')}`}>
-                  <div className="p-3 border-b border-[#2a2d35] flex justify-between items-center">
+                <div className={`fixed sm:absolute right-2 sm:right-0 left-2 sm:left-auto top-14 sm:top-11 sm:w-80 rounded-xl shadow-2xl z-50 overflow-hidden border ${T(dark, 'bg-[#121418] border-[#2a2d35]', 'bg-white border-[#e2e8f0]')}`}>
+                  <div className={`p-3 border-b flex justify-between items-center ${T(dark, 'border-[#2a2d35]', 'border-[#e2e8f0]')}`}>
                     <span className="text-xs font-bold uppercase tracking-wider">Thông báo đối thủ</span>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                       {unreadCount > 0 && (
-                        <button onClick={markAllRead} className="text-[10px] text-[#00ff66] hover:underline">Đã đọc tất cả</button>
+                        <button onClick={markAllRead} className="text-xs text-[#00ff66] font-medium hover:underline">Đã đọc tất cả</button>
                       )}
-                      <button onClick={() => setShowNotif(false)} className="text-[#9ca3af] hover:text-white text-xs">Đóng</button>
+                      <button onClick={() => setShowNotif(false)} className={`text-xs ${T(dark, 'text-[#9ca3af] hover:text-white', 'text-[#64748b] hover:text-black')}`}>Đóng</button>
                     </div>
                   </div>
                   <div className="max-h-80 overflow-y-auto">

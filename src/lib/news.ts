@@ -10,7 +10,26 @@ export type Article = {
   publishedAt: string;
   category: 'AI' | 'Cloud' | 'Startup' | 'General';
   imageUrl?: string;
+  isCompetitor: boolean;
+  competitorName: string | null;
 };
+
+const COMPETITORS: Record<string, RegExp> = {
+  'FPT': /\bFPT\b/i,
+  'VIETTEL': /\bVIETTEL\b/i,
+  'CMC': /\bCMC\b/i,
+  'VNPT': /\bVNPT\b/i,
+  'VNG': /\bVNG\b/i,
+  'MOBIFONE': /\bMOBIFONE\b/i,
+  'MISA': /\bMISA\b/i,
+};
+
+function detectCompetitor(text: string): string | null {
+  for (const [name, regex] of Object.entries(COMPETITORS)) {
+    if (regex.test(text)) return name;
+  }
+  return null;
+}
 
 // Google News RSS sources — searches Vietnamese AI/Cloud news
 const RSS_SOURCES = [
@@ -157,6 +176,7 @@ export async function fetchAllNews(): Promise<Article[]> {
 
           const cleanTitle = decodeHtmlEntities(title.replace(/ - [^-]+$/, '')); // strip source suffix & decode HTML entities
           const finalCategory = classifyCategory(cleanTitle, category);
+          const competitorName = detectCompetitor(cleanTitle + ' ' + cleanDesc);
 
           allArticles.push({
             id: `${slugify(cleanTitle)}-${Date.now()}`,
@@ -168,6 +188,8 @@ export async function fetchAllNews(): Promise<Article[]> {
             publishedAt: pubDate,
             category: finalCategory,
             imageUrl: undefined,
+            isCompetitor: !!competitorName,
+            competitorName,
           });
         }
       } catch (err) {

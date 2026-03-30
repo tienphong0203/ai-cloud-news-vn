@@ -23,6 +23,10 @@ export default function HomePage() {
   const [refreshing, setRefreshing] = useState(false);
   const [region, setRegion] = useState('Tất cả');
   const [showNotif, setShowNotif] = useState(false);
+  const [readIds, setReadIds] = useState<Set<string>>(new Set());
+
+  const markAsRead = (id: string) => setReadIds(prev => new Set(prev).add(id));
+  const markAllRead = () => setReadIds(new Set(competitors.map(a => a.id)));
 
   const fetchNews = async () => {
     try {
@@ -51,10 +55,12 @@ export default function HomePage() {
   [news]);
 
   const notifications = useMemo(() =>
-    competitors.map((a, i) => ({
-      id: i, text: `[${a.competitorName}] ${a.title}`, time: timeAgo(a.pubDate), url: a.link,
+    competitors.map(a => ({
+      id: a.id, text: `[${a.competitorName}] ${a.title}`, time: timeAgo(a.pubDate), url: a.link,
     })),
   [competitors]);
+
+  const unreadCount = notifications.filter(n => !readIds.has(n.id)).length;
 
   // ── RENDER ────────────────────────────────────────────────────────
   return (
@@ -89,9 +95,9 @@ export default function HomePage() {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
                 </svg>
-                {notifications.length > 0 && (
+                {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
-                    {notifications.length}
+                    {unreadCount}
                   </span>
                 )}
               </button>
@@ -100,16 +106,30 @@ export default function HomePage() {
                 <div className="absolute right-0 top-11 w-80 bg-[#121418] border border-[#2a2d35] rounded-xl shadow-2xl z-50 overflow-hidden">
                   <div className="p-3 border-b border-[#2a2d35] flex justify-between items-center">
                     <span className="text-xs font-bold uppercase tracking-wider">Thông báo đối thủ</span>
-                    <button onClick={() => setShowNotif(false)} className="text-[#9ca3af] hover:text-white text-xs">Đóng</button>
+                    <div className="flex items-center gap-2">
+                      {unreadCount > 0 && (
+                        <button onClick={markAllRead} className="text-[10px] text-[#00ff66] hover:underline">Đã đọc tất cả</button>
+                      )}
+                      <button onClick={() => setShowNotif(false)} className="text-[#9ca3af] hover:text-white text-xs">Đóng</button>
+                    </div>
                   </div>
                   <div className="max-h-80 overflow-y-auto">
-                    {notifications.length > 0 ? notifications.map(n => (
-                      <a key={n.id} href={n.url} target="_blank" rel="noopener noreferrer"
-                        className="block p-3 border-b border-[#2a2d35]/50 hover:bg-[#2a2d35]/30 transition-colors">
-                        <p className="text-sm mb-1 line-clamp-2">{n.text}</p>
-                        <span className="text-[10px] text-[#9ca3af]">{n.time}</span>
-                      </a>
-                    )) : (
+                    {notifications.length > 0 ? notifications.map(n => {
+                      const isRead = readIds.has(n.id);
+                      return (
+                        <a key={n.id} href={n.url} target="_blank" rel="noopener noreferrer"
+                          onClick={() => markAsRead(n.id)}
+                          className={`block p-3 border-b border-[#2a2d35]/50 hover:bg-[#2a2d35]/30 transition-colors ${isRead ? 'opacity-50' : ''}`}>
+                          <div className="flex items-start gap-2">
+                            {!isRead && <span className="mt-1.5 w-2 h-2 rounded-full bg-[#00ff66] shrink-0" />}
+                            <div>
+                              <p className="text-sm mb-1 line-clamp-2">{n.text}</p>
+                              <span className="text-[10px] text-[#9ca3af]">{n.time}</span>
+                            </div>
+                          </div>
+                        </a>
+                      );
+                    }) : (
                       <div className="p-6 text-center text-sm text-[#9ca3af]">Chưa có hoạt động mới từ đối thủ.</div>
                     )}
                   </div>

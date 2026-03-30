@@ -46,11 +46,44 @@ export default function App() {
     document.documentElement.classList.toggle("light");
   };
 
-  const notifications = [
-    { id: 1, text: "Gemini vừa tóm tắt bản tin mới nhất cho bạn.", time: "Vừa xong" },
-    { id: 2, text: "Phát hiện hoạt động mới từ đối thủ Viettel.", time: "10 phút trước" },
-    { id: 3, text: "Chào mừng bạn đến với GenNews!", time: "1 giờ trước" },
-  ];
+  const formatTime = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+
+    if (diffHrs < 1) return "Vừa xong";
+    if (diffHrs < 24) return `${diffHrs} giờ trước`;
+    return date.toLocaleDateString("vi-VN");
+  };
+
+  // Dynamic notifications generated from real competitor news
+  const notifications = useMemo(() => {
+    const notifs: { id: number; text: string; time: string }[] = [];
+
+    // Generate notifications from competitor articles
+    news.forEach((item, idx) => {
+      if (item.isCompetitor && item.competitorName) {
+        const timeAgo = formatTime(item.pubDate);
+        notifs.push({
+          id: idx + 1,
+          text: `[${item.competitorName.toUpperCase()}] ${item.curatedTitle || item.title}`,
+          time: timeAgo,
+        });
+      }
+    });
+
+    // If no competitor news at all, show a status message
+    if (notifs.length === 0) {
+      notifs.push({
+        id: 0,
+        text: "Chưa có hoạt động mới từ đối thủ trong 24h qua.",
+        time: "Vừa kiểm tra",
+      });
+    }
+
+    return notifs.slice(0, 10); // Max 10 notifications
+  }, [news]);
 
   const ai = useMemo(() => new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" }), []);
 
@@ -186,17 +219,6 @@ export default function App() {
 
     return competitors.slice(0, 5);
   }, [news]);
-
-  const formatTime = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
-    
-    if (diffHrs < 1) return "Vừa xong";
-    if (diffHrs < 24) return `${diffHrs} giờ trước`;
-    return date.toLocaleDateString("vi-VN");
-  };
 
   return (
     <div className={`min-h-screen bg-background font-sans transition-colors duration-300 pb-12 ${isDarkMode ? "" : "light"}`}>

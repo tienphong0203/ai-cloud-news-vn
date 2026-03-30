@@ -2,11 +2,11 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'VN Tech Pulse — Tin AI & Cloud Việt Nam',
-  description: 'Tổng hợp tin tức AI, Cloud và Startup công nghệ tại Việt Nam trong 24 giờ qua.',
+  title: 'GreenNode Radar — AI & Cloud News Vietnam',
+  description: 'Tổng hợp tin tức AI, Cloud, Bán dẫn và Chuyển đổi số tại Việt Nam & quốc tế.',
   openGraph: {
-    title: 'VN Tech Pulse',
-    description: 'Tin tức AI & Cloud Việt Nam trong 24h',
+    title: 'GreenNode Radar',
+    description: 'AI & Cloud News — Việt Nam, China, USA, Europe',
     type: 'website',
   },
 };

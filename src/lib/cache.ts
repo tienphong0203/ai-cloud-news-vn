@@ -1,25 +1,20 @@
-import type { Article } from './news';
+import type { NewsItem } from './rss';
 
-// In-memory cache — works on Vercel serverless (shared within same instance)
-let cachedArticles: Article[] | null = null;
+let cachedArticles: NewsItem[] | null = null;
 let cachedAt: string | null = null;
 const TTL_MS = 2 * 60 * 60 * 1000; // 2 hours
 
-export async function getCachedArticles(): Promise<Article[] | null> {
+export async function getCachedArticles(): Promise<NewsItem[] | null> {
   if (!cachedArticles || !cachedAt) return null;
-
-  const age = Date.now() - new Date(cachedAt).getTime();
-  if (age > TTL_MS) {
-    // Cache expired
+  if (Date.now() - new Date(cachedAt).getTime() > TTL_MS) {
     cachedArticles = null;
     cachedAt = null;
     return null;
   }
-
   return cachedArticles;
 }
 
-export async function setCachedArticles(articles: Article[]): Promise<void> {
+export async function setCachedArticles(articles: NewsItem[]): Promise<void> {
   cachedArticles = articles;
   cachedAt = new Date().toISOString();
 }
